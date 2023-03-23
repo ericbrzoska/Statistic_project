@@ -3,7 +3,7 @@ require(MASS)
 
 data = read.csv2("arab.csv", sep=",")
 
-
+#######Test: Zeile kann gelöscht werden
 #verallgemeinertes lineares Modell
 treatment = c(rep(0,3), rep(1,3))
 time = c(rep(1:3,2))
