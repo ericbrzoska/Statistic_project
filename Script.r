@@ -22,7 +22,7 @@ pvals = c(rep(0, 16529-4))
 - erstelle data frame mit designmatrix und readcounts des aktuellen Gens
 - currentglm: verallgemeinertes lineares Modell mit glm.nb fuer aktuelles Gen
 "
-for (i in 4:length(16529))
+for (i in 4:16529)
 {
   currentcounts = arab.data[i]
   currentvals = data.frame(designmatrix, currentcounts)
