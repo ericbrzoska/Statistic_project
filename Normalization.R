@@ -17,7 +17,7 @@ dds = DESeqDataSetFromMatrix(countData = counts_matrix, colData = design_matrix,
 
 norm_counts=estimateSizeFactors(dds)
 norm_counts=counts(norm_counts, normalized= TRUE)
-
+norm_counts= norm_counts %/% 1         # this creates a small bias, but those counts should not stay as double
 #reconstructing original dataframe
-output=rbind(copy[c(1:3),],norm_counts)
-write.csv2(output,file = "normed_arab.csv", sep = ",")
+output=t(rbind(copy[c(1:3),],norm_counts))
+write.csv2(output,file = "normed_arab.csv")

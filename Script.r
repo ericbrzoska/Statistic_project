@@ -3,7 +3,7 @@ require(MASS)
 
 #Datei einlesen
 data = read.csv2("arab.csv", sep=",") 
-
+#data = read.csv2("normed_arab.csv", sep=";") 
 "
 verallgemeinertes lineares Modell
 
@@ -24,13 +24,13 @@ pvals = c(rep(0, 16529-4))
 "
 for (i in 4:16529)
 {
-  currentcounts = arab.data[i]
+  currentcounts = data[i]
   currentvals = data.frame(designmatrix, currentcounts)
   
   colnames(currentvals)[3] = "counts"
   
-  currentglm = glm.nb(counts ~ 1 + treatment + as.factor(time), data = currentvals)
-  
+  currentglm = glm.nb(counts ~ 1 + as.factor(treatment) + as.factor(time), data = currentvals)
+  # Habe treatment auch mal as.factor() gesetzt
 }
 
 #statistische Tests (p-value)
