@@ -37,7 +37,7 @@ for (i in 4:length(data[1,])){
 }
 
 "
-- initialisiere DEgenes
+- initialisiere DEgenes und NDEgenes
 
 - iteriere über alle p-values
 - sortiere alle groesser 0.05 aus
@@ -46,9 +46,9 @@ for (i in 4:length(data[1,])){
 DEgenes = data.frame(data[1], data[2], data[3])
 NDEgenes = data.frame(data[1], data[2], data[3])
 
-for(i in 1:(length(data[1,])-4)){
+for(i in 4:(length(data[1,]))){
   
-  if(pvals[i] < 0.05){
+  if(pvals[i-3] < 0.05){
     
     mean.mock = mean(cbind(data[1, i], data[2, i], data[3, i]))
     mean.hrcc = mean(cbind(data[4, i], data[5, i], data[6, i]))
