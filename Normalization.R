@@ -20,4 +20,5 @@ norm_counts=counts(norm_counts, normalized= TRUE)
 norm_counts= norm_counts %/% 1         # this creates a small bias, but those counts should not stay as double
 #reconstructing original dataframe
 output=t(rbind(copy[c(1:3),],norm_counts))
+output=output[,-1]
 write.csv2(output,file = "normed_arab.csv")
