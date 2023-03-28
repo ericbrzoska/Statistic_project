@@ -94,7 +94,32 @@ for(i in 4:(length(data[1,]))){
 #Histogramm für die p-values
 hist(pvals,breaks=seq(from=0, to=1, by=0.05),main="Histogram of p-values",xlab="p-values",ylim=c(0,3000))
 
-####Simulation
-#Zeit ignorieren, nur noch mock oder hrcc
-#Annahme: gleiche Expression von 'unwichtigen Genen', Unterschiede für DE Gene
-#Einfluss Anzahl Wiederholungen auf die FDR
+"
+Simulation
+
+- init Vektoren für fitted values
+"
+NDEmock = rep(0, length(NDEgenes)-4)
+NDEhrcc = rep(0, length(NDEgenes)-4)
+
+"
+- iteriere über NDE Gene
+- berechne glm(...,family=poisson) ohne zeitlichen Aspekt
+- speichere fitted values für mock und hrcc in Vektoren (sind jetzt gleich für alle mock/hrcc)
+"
+for (i in 4:length(NDEgenes)) {
+  
+  currentvals = data.frame(designmatrix, NDEgenes[i])
+  
+  colnames(currentvals)[3] = "counts"
+  
+  currentglm = glm(counts ~ 1 + treatment, data = currentvals,family=poisson)
+  
+  NDEmock[i-3] = fitted(currentglm)[1]
+  NDEhrcc[i-3] = fitted(currentglm)[4]
+  
+}
+
+#berechne mean der fitted value Vektoren
+NDEmean.mock = mean(NDEmock)
+NDEmean.hrcc = mean(NDEhrcc)
