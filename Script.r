@@ -127,3 +127,68 @@ for (i in 4:length(NDEgenes)) {
 #berechne mean der fitted value Vektoren
 NDEmean.mock = mean(NDEmock)
 NDEmean.hrcc = mean(NDEhrcc)
+
+#berechne daraus ein mean
+NDEmean = mean(cbind(NDEmean.hrcc, NDEmean.mock))
+
+"
+Simuliere Daten fuer NDE Gene
+
+- init leerer Vektor NDEsim.values
+
+- erzeuge für alle NDE Gene poissonverteilte Zufallswerte
+- fuer alle NDE Gene selber Erwartungswert  NDEmean
+- cbind() an NDEsim.values
+
+- konvertiere Vektor zu data frame
+"
+NDEsim.values = c()
+
+for (i in 4:length(NDEgenes)){
+  
+  randpois = rpois(1000, NDEmean)
+  
+  NDEsim.values = cbind(NDEsim.values, randpois)
+  
+  colnames(NDEsim.values)[i-3] = colnames(NDEgenes[i])
+}
+
+NDEsim.values = data.frame(NDEsim.values)
+
+"
+Simuliere Daten für DE Gene
+
+- init leerer Vektor
+
+- berechne fuer alle DE Gene Mittelwerte mit altem Modell
+- berechne damit fuer jedes Gen mit rpois() Zufallswerte
+- cbind() an DEsim.values
+
+- konvertiere DEsim.values zu data frame
+"
+DEsim.values = c()
+
+for (i in 4:length(DEgenes)) {
+  
+  currentvals = data.frame(designmatrix, DEgenes[i])
+  
+  colnames(currentvals)[3] = "counts"
+  
+  currentglm = glm(counts ~ 1 + treatment + as.factor(time), data = currentvals,family=poisson)
+  
+  DEmean.mock = mean(fitted(currentglm)[1:3])
+  DEmean.hrcc = mean(fitted(currentglm)[4:6])
+  
+  randpois.mock = rpois(500, DEmean.mock)
+  randpois.hrcc = rpois(500, DEmean.hrcc)
+  
+  DEsim.values = cbind(DEsim.values, c(randpois.mock, randpois.hrcc))
+  
+  colnames(DEsim.values)[i-3] = colnames(DEgenes[i])
+  
+}
+
+DEsim.values = data.frame(DEsim.values)
+
+#kombiniere NDE und DE simulierte Werte
+sim.values = cbind(NDEsim.values, DEsim.values)
