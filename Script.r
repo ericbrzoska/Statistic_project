@@ -60,12 +60,12 @@ plot(fitted(nbmodel), nb_res, col='steelblue', pch=16,
 
 "
 Statistische Tests
-- initialisiere DEgenes
+- initialisiere DEgenes und NDEgenes
 
 - iteriere über alle p-values
 - sortiere alle groesser 0.05 aus
-- fuer alle kleiner 0.05 cbind zu neuem dataframe und berechne fold change
-- falls fold change größer 2 oder kleiner 0.5, Gen ist DE Gen
+- fuer alle kleiner 0.05 berechne fold change
+- falls fold change größer 2 oder kleiner 0.5, Gen ist DE Gen, sonst NDE Gen
 "
 DEgenes = data.frame(data[1], data[2], data[3])
 NDEgenes = data.frame(data[1], data[2], data[3])
