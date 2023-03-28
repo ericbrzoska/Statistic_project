@@ -81,7 +81,11 @@ for(i in 4:(length(data[1,]))){
       
       DEgenes = cbind(DEgenes, data[i])
       
-    }
+    }else{
+      
+        NDEgenes = cbind(NDEgenes, data[i])
+      
+      }
     
   } else{
     
