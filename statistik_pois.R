@@ -3,8 +3,8 @@ require(MASS)
 
 #Datei einlesen
 data = read.csv2("arab.csv", sep=",") 
-
-
+data= read.csv2("normed_arab_2.csv", sep=";") 
+data= data[-1]
 #verallgemeinertes lineares Modell, p-values
 
 treatment = c(rep(0,3), rep(1,3)) #treatment Vektor
@@ -12,11 +12,11 @@ time = c(rep(1:3,2))  #time Vektor
 
 designmatrix = data.frame(treatment, time)  #designmatrix mit Einflussgroessen
 
-pvals = c(rep(0, length(data[1,]))) #speichert p-value fuer jedes Gen
+pvals = c(rep(0, length(data)-4)) #speichert p-value fuer jedes Gen
 
 fittedvals = c()  #speichert fitted values fuer jedes Gen
 bool.de.nde = c() #speichert boolean (TRUE wenn DE Gen, false wenn NDE Gen)
-
+thetas = c(rep(0, length(data)-4))
 
 "
 - iteriere ueber alle Gene
@@ -27,13 +27,25 @@ bool.de.nde = c() #speichert boolean (TRUE wenn DE Gen, false wenn NDE Gen)
 for (i in 4:length(data[1,])){
   
   currentvals = data.frame(designmatrix, data[i])
-  
   colnames(currentvals)[3] = "counts"
-  
-  currentglm = glm(counts ~ 1 + treatment + as.factor(time), data = currentvals, family=poisson)
+
+  currentglm = tryCatch(
+    {
+      glm.nb(counts ~ 1 + treatment + as.factor(time), data = currentvals)
+    },
+    error=function(e){
+      
+      glm(counts ~ 1 + treatment + as.factor(time), data = currentvals, family=poisson)
+    }
+  )
   
   pvalue = summary(aov(currentglm))[[1]][2,5]
+  pvals[i-3] = pvalue
   fittedvals = cbind(fittedvals, fitted(currentglm))
+  
+  if(grepl("glm.nb", currentglm$call)){
+    thetas[i-3] = currentglm$theta
+  }
   
   "
   - pruefe, ob p-value unter threshold liegt
@@ -60,9 +72,12 @@ for (i in 4:length(data[1,])){
 }
 
 #Simulation der Werte
+data = data[-4645]
+bool.de.nde = bool.de.nde[-4642]
+fittedvals = fittedvals[,-4642]
+thetas = thetas[-4642]
 
 sim.values = c()  #speichert simulierte Werte fuer jedes Gen
-
 "
 - iteriere ueber Gene
 - pruefe  NDE und DE Gen mittels bool.de.nde
@@ -75,23 +90,22 @@ for (i in 4:length(data)) {
     DEmean.mock = mean(fittedvals[1:3,i-3])
     DEmean.hrcc = mean(fittedvals[4:6,i-3])
     
-    randpois.mock = rpois(250, DEmean.mock)
-    randpois.hrcc = rpois(250, DEmean.hrcc)
+    rand.mock = rnbinom(250, size = thetas[i-3], mu = DEmean.mock)
+    rand.hrcc = rnbinom(250, size = thetas[i-3], mu = DEmean.hrcc)
     
-    sim.values = cbind(sim.values, c(randpois.mock, randpois.hrcc))
+    sim.values = cbind(sim.values, c(rand.mock, rand.hrcc))
     
     colnames(sim.values)[i-3] = colnames(data[i])
     
   }else{
     
-    NDEmean = mean(NDEfittedvals[i-3])
+    NDEmean = mean(fittedvals[,i-3])
     
-    randpois = rpois(500, NDEmean)
+    randnde = rnbinom(500, size = thetas[i-3], mu = NDEmean)
     
-    sim.values = cbind(sim.values, randpois)
+    sim.values = cbind(sim.values, randnde)
     
     colnames(sim.values)[i-3] = colnames(data[i])
   }
   
 }
-
